@@ -23,6 +23,7 @@ float64[6] O_F_ext_hat_K
 float64[6] O_dP_EE_d
 float64[6] O_dP_EE_c
 float64[6] O_ddP_EE_c
+float64[6] O_dP_EE
 float64[7] tau_ext_hat_filtered
 float64 m_ee
 float64[3] F_x_Cee

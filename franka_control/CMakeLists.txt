@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   franka_hw
   franka_msgs
   geometry_msgs
+  hardware_interface
   message_generation
   pluginlib
   realtime_tools
@@ -19,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_msgs
 )
 
+find_package(Eigen3 REQUIRED)
 find_package(Franka 0.7.0 REQUIRED)
 
 catkin_package(
@@ -29,6 +31,7 @@ catkin_package(
     franka_hw
     franka_msgs
     geometry_msgs
+    hardware_interface
     pluginlib
     realtime_tools
     roscpp
@@ -54,6 +57,7 @@ target_link_libraries(franka_state_controller
 
 target_include_directories(franka_state_controller SYSTEM PUBLIC
   ${Franka_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 target_include_directories(franka_state_controller PUBLIC
