@@ -361,6 +361,7 @@ void FrankaStateController::publishFrankaStates(const ros::Time& time) {
       publisher_franka_states_.msg_.EE_T_K[i] = robot_state_.EE_T_K[i];
       publisher_franka_states_.msg_.O_T_EE_d[i] = robot_state_.O_T_EE_d[i];
       publisher_franka_states_.msg_.O_T_EE_c[i] = robot_state_.O_T_EE_c[i];
+      publisher_franka_states_.msg_.F_T_NE[i] = robot_state_.F_T_NE[i];
     }
     publisher_franka_states_.msg_.m_ee = robot_state_.m_ee;
     publisher_franka_states_.msg_.m_load = robot_state_.m_load;
