@@ -187,6 +187,22 @@ bool FrankaStateController::init(hardware_interface::RobotHW* robot_hardware,
     return false;
   }
 
+    auto* model_interface = robot_hardware->get<franka_hw::FrankaModelInterface>();
+  if (model_interface == nullptr) {
+    ROS_ERROR_STREAM(
+        "FrankaStateController: Error getting model interface from hardware");
+    return false;
+  }
+  try {
+    model_handle_ = std::make_unique<franka_hw::FrankaModelHandle>(
+        model_interface->getHandle(arm_id_ + "_model"));
+  } catch (hardware_interface::HardwareInterfaceException& ex) {
+    ROS_ERROR_STREAM(
+        "FrankaStateController: Exception getting model handle from interface: "
+        << ex.what());
+    return false;
+  }
+
   publisher_transforms_.init(root_node_handle, "/tf", 1);
   publisher_franka_states_.init(controller_node_handle, "franka_states", 1);
   publisher_joint_states_.init(controller_node_handle, "joint_states", 1);
@@ -260,6 +276,18 @@ void FrankaStateController::update(const ros::Time& time, const ros::Duration& /
 }
 
 void FrankaStateController::publishFrankaStates(const ros::Time& time) {
+
+    std::array<double, 7> coriolis = model_handle_->getCoriolis();
+    std::array<double, 7> gravity = model_handle_->getGravity();
+
+    std::array<double, 49> mass_matrix = model_handle_->getMass();
+    std::array<double, 42> O_Jac_EE = model_handle_->getZeroJacobian(franka::Frame::kEndEffector);
+    Eigen::Map<Eigen::Matrix<double, 6, 7>> jacobian(O_Jac_EE.data());
+    Eigen::Map<Eigen::Matrix<double, 7, 1>> dq(robot_state_.dq.data());
+
+    //  jacobian * dq
+    Eigen::Matrix<double, 6, 1> ee_vel = jacobian * dq;
+
   if (publisher_franka_states_.trylock()) {
     static_assert(
         sizeof(robot_state_.cartesian_collision) == sizeof(robot_state_.cartesian_contact),
@@ -282,6 +310,7 @@ void FrankaStateController::publishFrankaStates(const ros::Time& time) {
       publisher_franka_states_.msg_.O_dP_EE_d[i] = robot_state_.O_dP_EE_d[i];
       publisher_franka_states_.msg_.O_dP_EE_c[i] = robot_state_.O_dP_EE_c[i];
       publisher_franka_states_.msg_.O_ddP_EE_c[i] = robot_state_.O_ddP_EE_c[i];
+      publisher_franka_states_.msg_.O_dP_EE[i] = ee_vel(i,0);
     }
 
     static_assert(sizeof(robot_state_.q) == sizeof(robot_state_.q_d),
