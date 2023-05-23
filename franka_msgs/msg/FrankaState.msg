@@ -32,6 +32,7 @@ float64 m_load
 float64[3] F_x_Cload
 float64[9] I_load
 float64 m_total
+float64[42] O_Jac_EE
 float64[3] F_x_Ctotal
 float64[9] I_total
 float64[16] O_T_EE

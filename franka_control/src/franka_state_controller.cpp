@@ -379,6 +379,10 @@ void FrankaStateController::publishFrankaStates(const ros::Time& time) {
       publisher_franka_states_.msg_.F_x_Ctotal[i] = robot_state_.F_x_Ctotal[i];
     }
 
+    for (size_t i = 0; i < O_Jac_EE.size(); i++) {
+      publisher_franka_states_.msg_.O_Jac_EE[i] = O_Jac_EE[i];
+    }
+
     publisher_franka_states_.msg_.time = robot_state_.time.toSec();
     publisher_franka_states_.msg_.control_command_success_rate =
         robot_state_.control_command_success_rate;
